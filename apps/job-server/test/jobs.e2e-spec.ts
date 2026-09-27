@@ -347,6 +347,9 @@ describe('Jobs API (e2e)', () => {
       ['수정 불가 필드', { attempts: 10 }],
       ['id 변경 시도', { id: 'other' }],
       ['빈 title', { title: '' }],
+      ['title null', { title: null }],
+      ['description null', { description: null }],
+      ['status null', { status: null }],
     ])('%s → 400', async (_, body) => {
       const job = await createJob();
       const res = await http.patch(`/jobs/${job.id}`).send(body).expect(400);
