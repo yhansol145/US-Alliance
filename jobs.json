@@ -1,0 +1,95 @@
+{
+    "jobs": [
+        {
+            "id": "202bc82e-2cbb-4466-8ae0-cbe469cb620d",
+            "title": "US Plus 구독 정기결제 처리",
+            "description": "결제일이 도래한 US Plus 구독자의 정기결제를 실행하고 영수증을 발송한다",
+            "status": "completed",
+            "attempts": 1,
+            "lastError": null,
+            "version": 3,
+            "createdAt": "2026-09-27T09:00:00.000Z",
+            "updatedAt": "2026-09-27T09:01:00.000Z",
+            "startedAt": "2026-09-27T09:01:00.000Z",
+            "finishedAt": "2026-09-27T09:01:00.000Z"
+        },
+        {
+            "id": "ab232ec6-fe9e-4681-8a65-f697e1829ab7",
+            "title": "주간 시황 리포트 발행 알림 발송",
+            "description": "크리에이터의 주간 시황 리포트가 발행되면 구독자에게 푸시/이메일 알림을 발송한다",
+            "status": "completed",
+            "attempts": 2,
+            "lastError": null,
+            "version": 5,
+            "createdAt": "2026-09-27T09:05:00.000Z",
+            "updatedAt": "2026-09-27T09:07:00.000Z",
+            "startedAt": "2026-09-27T09:07:00.000Z",
+            "finishedAt": "2026-09-27T09:07:00.000Z"
+        },
+        {
+            "id": "83401e33-77ab-4b5e-a5c9-18898b965f4b",
+            "title": "US Campus 강의 영상 인코딩",
+            "description": "신규 업로드된 US Campus 강의 영상을 HLS 스트리밍 포맷으로 변환한다",
+            "status": "failed",
+            "attempts": 3,
+            "lastError": "인코딩 서버 응답 시간 초과",
+            "version": 7,
+            "createdAt": "2026-09-27T09:10:00.000Z",
+            "updatedAt": "2026-09-27T09:13:00.000Z",
+            "startedAt": "2026-09-27T09:13:00.000Z",
+            "finishedAt": "2026-09-27T09:13:00.000Z"
+        },
+        {
+            "id": "c0a24ff6-9339-4181-8d67-91372a185987",
+            "title": "라이브 세미나 리마인드 알림 발송",
+            "description": "크리에이터 라이브 세미나 시작 1시간 전 신청자에게 리마인드 알림을 발송한다 (세미나 일정 변경으로 취소)",
+            "status": "canceled",
+            "attempts": 0,
+            "lastError": null,
+            "version": 2,
+            "createdAt": "2026-09-27T09:15:00.000Z",
+            "updatedAt": "2026-09-27T09:16:00.000Z",
+            "startedAt": null,
+            "finishedAt": "2026-09-27T09:16:00.000Z"
+        },
+        {
+            "id": "a5678af7-d35b-4f48-809e-c9e481ce66c2",
+            "title": "크리에이터 월간 정산 리포트 생성",
+            "description": "제휴 크리에이터별 구독·강의 매출을 집계해 월간 정산 리포트를 생성한다",
+            "status": "pending",
+            "attempts": 0,
+            "lastError": null,
+            "version": 1,
+            "createdAt": "2026-09-27T09:20:00.000Z",
+            "updatedAt": "2026-09-27T09:20:00.000Z",
+            "startedAt": null,
+            "finishedAt": null
+        },
+        {
+            "id": "b8f0feac-f759-4c4a-990f-e0879de55a68",
+            "title": "US Campus 수료증 발급",
+            "description": "수강 완료 조건을 충족한 수강생에게 수료증 PDF 를 발급한다",
+            "status": "pending",
+            "attempts": 0,
+            "lastError": null,
+            "version": 1,
+            "createdAt": "2026-09-27T09:25:00.000Z",
+            "updatedAt": "2026-09-27T09:25:00.000Z",
+            "startedAt": null,
+            "finishedAt": null
+        },
+        {
+            "id": "50d56020-84dd-439a-862a-b25580ec1e6a",
+            "title": "커뮤니티 스팸 게시글 필터링",
+            "description": "신규 게시글·댓글 중 불법 리딩방 홍보 등 스팸 콘텐츠를 탐지해 숨김 처리한다",
+            "status": "pending",
+            "attempts": 0,
+            "lastError": null,
+            "version": 1,
+            "createdAt": "2026-09-27T09:30:00.000Z",
+            "updatedAt": "2026-09-27T09:30:00.000Z",
+            "startedAt": null,
+            "finishedAt": null
+        }
+    ]
+}
