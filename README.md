@@ -347,14 +347,6 @@ libs/utils/src            JobStatus, ErrorCode 상수
 - **처리 중 강제 종료.** 처리 도중 프로세스가 죽으면 그 시도는 `attempts`에 포함됩니다. 즉 처리 보장 수준은 at-least-once입니다. 처리 로직이 멱등하다는 전제가 필요합니다.
 - **단일 프로세스 전제.** 여러 인스턴스로 수평 확장할 수 없습니다. 파일 기반 저장소를 쓰는 한 의도된 제약입니다.
 
-### 시간이 더 있다면
-
-- 저장소를 트랜잭션을 지원하는 DB(SQLite, PostgreSQL 등)로 바꾸고, `SELECT ... FOR UPDATE SKIP LOCKED`로 선점하도록 해서 스케줄러를 별도 worker 프로세스로 분리
-- 실패 재시도에 지수 백오프(`nextRunAt`) 적용, 처리 중인 작업 취소 요청(`cancelRequested`) 지원
-- 목록 조회를 커서 기반 페이지네이션으로 변경, `title` 검색용 인덱스 추가
-- `logs.txt` 로테이션, 구조화 로그(JSON Lines)
-- OpenAPI(Swagger) 문서화
-
 ### 테스트
 
 `npm test`로 실행하며, 총 102개입니다. 테스트마다 임시 디렉토리의 `jobs.json`과 `logs.txt`를 사용해 서로 격리됩니다.
