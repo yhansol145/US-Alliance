@@ -194,6 +194,7 @@ curl -X PATCH localhost:3000/jobs/<id> -H 'Content-Type: application/json' \
 ```
 
 - 수정 가능한 필드는 `title`, `description`, `status`(`pending` 또는 `canceled`)입니다.
+- 필드를 생략할 수는 있지만 `null`로 보낼 수는 없습니다 (`400`).
 - `If-Match` 헤더는 선택입니다. 보내면 현재 `version`과 비교해 다를 때 `412`를 반환합니다.
 - 실제로 바뀐 값이 없으면 `version`을 올리지 않습니다 (멱등).
 
@@ -202,7 +203,7 @@ curl -X PATCH localhost:3000/jobs/<id> -H 'Content-Type: application/json' \
 | 코드 | `error` | 발생 상황 |
 | --- | --- | --- |
 | 200 / 201 | | 성공 |
-| 400 | `VALIDATION_FAILED` | 필드 검증 실패, 허용되지 않은 필드, UUID가 아닌 id, 빈 PATCH body, 검색 조건 없음, 잘못된 `If-Match` 형식 |
+| 400 | `VALIDATION_FAILED` | 필드 검증 실패(`null` 포함), 허용되지 않은 필드, UUID가 아닌 id, 빈 PATCH body, 검색 조건 없음, 잘못된 `If-Match` 형식 |
 | 400 | `BAD_REQUEST` | JSON 파싱 실패 |
 | 404 | `JOB_NOT_FOUND` / `NOT_FOUND` | 없는 job / 없는 라우트 |
 | 409 | `INVALID_STATUS_TRANSITION` | 허용되지 않은 상태 전이 (예: `processing`인 작업 취소) |
@@ -305,6 +306,7 @@ libs/utils/src            JobStatus, ErrorCode 상수
 - `id` 형식 검증(UUID)을 404보다 먼저 해서 400을 반환합니다.
 - 조회 계열 응답은 항상 `{ data, meta? }` 형태로 감쌌습니다. 나중에 커서 페이지네이션 같은 메타 정보를 추가해도 호환이 깨지지 않습니다.
 - `DELETE`는 요구사항에 없어 만들지 않았고, 대신 `canceled` 상태로 소프트 삭제 역할을 하게 했습니다.
+- PATCH에서 `null`은 "값을 비운다"로 해석하지 않고 400으로 거부합니다. 필드를 바꾸지 않으려면 생략하면 됩니다.
 
 ### 4. 로깅
 
@@ -349,12 +351,12 @@ libs/utils/src            JobStatus, ErrorCode 상수
 
 ### 테스트
 
-`npm test`로 실행하며, 총 102개입니다. 테스트마다 임시 디렉토리의 `jobs.json`과 `logs.txt`를 사용해 서로 격리됩니다.
+`npm test`로 실행하며, 총 105개입니다. 테스트마다 임시 디렉토리의 `jobs.json`과 `logs.txt`를 사용해 서로 격리됩니다.
 
 | 파일 | 검증 내용 |
 | --- | --- |
 | [job.repository.spec.ts](libs/core/src/database/repositories/job.repository.spec.ts) | 동시 생성 200건 유실 없음, 같은 작업을 동시에 100번 수정해도 lost update 없음, 실패한 트랜잭션 롤백, 배치 내 격리, group commit 쓰기 횟수, 깨진 파일 보호, 임시 파일 정리, 재시작 후 유지 |
 | [job-process-batch.usecase.spec.ts](apps/job-server/src/modules/scheduler/usecase/job-process-batch.usecase.spec.ts) | 배치 크기와 처리 순서, 재시도 후 failed, 타임아웃, 배치 내 실패 격리, 처리 중 들어온 API 쓰기 보존, 동시 실행 시 중복 처리 없음, 반영 시점 상태 확인, 부팅 시 복구 |
 | [job-process-cron.service.spec.ts](apps/job-server/src/modules/scheduler/cron/job-process-cron.service.spec.ts) | 주기 등록과 자동 실행, 겹침 방지, 예외가 나도 계속 동작, logs.txt 기록 |
-| [jobs.e2e-spec.ts](apps/job-server/test/jobs.e2e-spec.ts) | 전체 엔드포인트의 정상과 에러 케이스, 상태 전이, If-Match(동시 10건 중 정확히 1건만 성공), API와 스케줄러 동시 접근, 모든 요청 logs.txt 기록 |
+| [jobs.e2e-spec.ts](apps/job-server/test/jobs.e2e-spec.ts) | 전체 엔드포인트의 정상과 에러 케이스, 상태 전이, PATCH `null` 거부, If-Match(동시 10건 중 정확히 1건만 성공), API와 스케줄러 동시 접근, 모든 요청 logs.txt 기록 |
 | [job-transition.spec.ts](apps/job-server/src/modules/job/utils/job-transition.spec.ts), [etag.spec.ts](apps/job-server/src/modules/job/utils/etag.spec.ts) | 전이 규칙, If-Match 파싱 |

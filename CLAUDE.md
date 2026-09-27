@@ -80,6 +80,7 @@ modules/{domain}/
 - 새 에러 유형은 `libs/utils/src/constants/error-code.type.ts` 에 `ErrorCode` 를 추가하고 `AppException` 정적 메서드로 던진다.
 - 고정 경로(`/jobs/search`)는 파라미터 경로(`/jobs/:id`)보다 먼저 선언한다.
 - `ValidationPipe` 는 `whitelist + forbidNonWhitelisted` 이므로 DTO 에 없는 필드는 400 이 된다.
+- PATCH DTO 의 선택 필드는 `@IsOptional()` 이 아닌 `IsOmittable()`(`ValidateIf(v !== undefined)`)을 쓴다. `@IsOptional()` 은 `null` 도 통과시켜 필수 값이 `null` 로 저장된다.
 
 ## 설정
 
