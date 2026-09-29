@@ -360,3 +360,24 @@ libs/utils/src            JobStatus, ErrorCode 상수
 | [job-process-cron.service.spec.ts](apps/job-server/src/modules/scheduler/cron/job-process-cron.service.spec.ts) | 주기 등록과 자동 실행, 겹침 방지, 예외가 나도 계속 동작, logs.txt 기록 |
 | [jobs.e2e-spec.ts](apps/job-server/test/jobs.e2e-spec.ts) | 전체 엔드포인트의 정상과 에러 케이스, 상태 전이, PATCH `null` 거부, If-Match(동시 10건 중 정확히 1건만 성공), API와 스케줄러 동시 접근, 모든 요청 logs.txt 기록 |
 | [job-transition.spec.ts](apps/job-server/src/modules/job/utils/job-transition.spec.ts), [etag.spec.ts](apps/job-server/src/modules/job/utils/etag.spec.ts) | 전이 규칙, If-Match 파싱 |
+
+### 고민했던 지점
+1. JSON 파일 하나를 API와 스케쥴러가 동시에 쓸 때의 정합성
+ - node-json-db는 메소드 단위로만 락을 걸어서 "조회-검증-수정-저장" 이 여러 await로 나뉘면 그 사이 스케쥴러가 끼어들어 변경이 사라질 수 있음
+ - 기본 어댑터는 파일을 먼저 비운 뒤 쓰기 때문에 쓰는 도중 프로세스가 죽으면 파일이 깨질 가능성이 있음
+ - 모든 쓰기를 단일 큐로 직렬화
+ - mutator를 동기 함수로 제한하고 검증도 그 안에서 처리
+ - 임시 파일에 쓰고 fsync 한 뒤 rename 하는 원자적 쓰기로 변경
+
+2. 스케쥴러의 긴 처리가 api를 막지 않도록 하기
+ - 처리를 트랜잭션 안에서 하면 그동안 쓰기가 멈춤. 그래서 선점-트랜잭션 밖 처리-반영 3단계로 나눔
+
+### 되돌린 결정
+1. API서버와 스케쥴러 프로세스 분리 -> 단일 프로세스
+ - 처음에는 API서버와 daemon을 별도 앱으로 나누려고 했으나 node-json-db는 파일을 메모리에 올려두고 쓰기 때문에 두 프로세스가 같은 파일을 쓰면 서로의 변경을 덮어쓰게 됨..
+ - 파일 락과 매번 다시 읽기를 넣는것은 과제 범위에 비해 복잡도 상승
+ - 쓰기 주체를 하나로 두고 스케쥴러는 독립 모듈로 분리해 나중에 떼어낼 수 있게 설계
+
+2. Mutex -> 쓰기 큐 + group commit
+ - 처음에는 mutex로 트랜잭션을 직렬화했으나 동시생성 200건 테스트에서 5초 타임아웃 발생 / 원인은 트랜잭션마다 하는 fsync
+ - fsync를 빼면 내구성을 잃기 때문에 직렬화는 유지하고 디스크 저장만 배치로 묶는 방식으로 변경
